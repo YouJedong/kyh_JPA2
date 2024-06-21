@@ -47,3 +47,78 @@ implementation 'org.springframework.boot:spring-boot-starter-devtools'
 ```
 
 - 소스코드를 수정하고 build > recomplie ~~ (ctrl + shift + F9)
+### H2 and JPA 셋팅
+
+- application.yml 생성
+
+    ```sql
+    spring:
+      datasource:
+        url: jdbc:h2:tcp://localhost/~/jpashop;MVCC=TRUE
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
+    
+      jpa:
+        hibernate:
+          ddl-auto: create
+        properties:
+          hibernate:
+            #show_sql: true // sysou으로 로그를 찍어주기 때문에 이거보다는 logging으로 찍는게 좋다.
+            format_sql: true
+            
+     logging:
+      level:
+        org.hibernate.SQL: debug   // 하이버네이트가 실행한 모든 SQL이 보임
+    ```
+
+
+### Entity 생성 후 Repository 만들기
+
+```java
+@Repository
+public class MemberRepository {
+
+    @PersistenceContext // 이렇게 셋팅해주면 EntityManager 설정 끝
+    private EntityManager em;
+    
+    public Long save(Member member) {
+        em.persist(member);
+        return member.getId();
+    }
+
+    public Member find(Long id) {
+        return em.find(Member.class, id);
+    }
+}
+```
+
+- 테스트 해보기 → Junit4
+   1. repository에서 cmd + shift + t
+   2. Junit4 선택하기 finish
+
+    ```java
+    @RunWith(SpringRunner.class) // Spring과 관련된 테스트를 할꺼야! 라고 알림
+    @SpringBootTest // SpringBoot로 테스트 하겠다!
+    public class MemberRepositoryTest {
+    
+    		// jpaShop > MemberRepositoryTest.java 확인
+    
+    }
+    ```
+
+
+### 로깅 좀 더 자세하게 나오는 방법 2가지
+
+1. ?으로 나오는 쿼리 파라미터의 값을 바로 밑에 로그로 알려줌
+
+    ```java
+    // application.yml
+    
+    logging:
+      level:
+        org.hibernate.SQL: debug
+        org.hibernate.orm.jdbc.bind: trace //이렇게 셋팅
+    ```
+
+2. 라이브러리 설치
