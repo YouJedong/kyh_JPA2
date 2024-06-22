@@ -121,4 +121,45 @@ public class MemberRepository {
         org.hibernate.orm.jdbc.bind: trace //이렇게 셋팅
     ```
 
-2. 라이브러리 설치
+2. 라이브러리 설치 (p6spy)
+    - 로그에서 쿼리 파라미터를 포함한 실제 쿼리로 보여주는 라이브러리
+    - 스프링부트 3.0 이상부터는 설정이 더 추가된다
+        - 참고 사이트 https://curiousjinan.tistory.com/entry/spring-boot-3-p6spy-jpa-logging
+        1. 의존성 추가
+
+            ```java
+            //build.gradle
+            implementation 'p6spy:p6spy:3.9.1'
+            implementation 'com.github.gavlyukovskiy:datasource-decorator-spring-boot-autoconfigure:1.9.0'
+            ```
+
+        2. src/main/resource 에 META-INF/spring/ 폴더 추가
+        3. org.springframework.boot.autoconfigure.AutoConfiguration.imports 라는 이름으로 파일 생성
+
+            ```java
+            // org.springframework.boot.autoconfigure.AutoConfiguration.imports파일 안에 아래 코드 입력
+            com.github.gavlyukovskiy.boot.jdbc.decorator.DataSourceDecoratorAutoConfiguration
+            ```
+
+        4. application.yml 파일에 설정 추가
+
+            ```yaml
+            spring:
+              datasource:
+                url: jdbc:h2:tcp://localhost/~/jpashop;
+                driver-class-name: org.h2.Driver
+                username: sa
+                password:
+                // 아래 부분을 추가해라
+                p6spy: 
+                  # JDBC 이벤트 로깅을 위한 P6LogFactory 등록
+                  enable-logging: true
+                  # com.p6spy.engine.spy.appender.MultiLineFormat 사용 (SingleLineFormat 대신)
+                  multiline: true
+                  # 기본 리스너들을 위한 로깅 사용 [slf4j, sysout, file, custom]
+                  logging: slf4j
+                  # 실제 값으로 '?'를 대체한 효과적인 SQL 문자열을 추적 시스템에 보고
+                  # 참고: 이 설정은 로깅 메시지에 영향을 주지 않음
+                  tracing:
+                    include-parameter-values: true
+            ```
