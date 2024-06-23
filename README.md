@@ -163,3 +163,70 @@ public class MemberRepository {
                   tracing:
                     include-parameter-values: true
             ```
+### 일대다 다대일 매핑시 설정
+
+- 다대일 설정은 기본 만약 일대다 설정을 할 때 주인은 **FK가 가까운 entity**로 설정해야한다.
+
+    ```java
+    // Order.java
+    class Order {
+    	
+    	// 다대일이기 때문에 필수로 설정해야한다.
+    	@ManyToOne
+    	@JoinColumn(name = "member_id") 
+    	private Member member;
+    }
+    
+    // Member.java
+    class Member {
+    
+    	// 일대다 설정은 옵션. 만약 설정을 했다면 아래처럼 "Order의 member필드가 주인이다" 라는 설정을 해야함
+    	@OneToMany(mappedBy = "member") 
+    	private List<Order> orders = new ArrayList<>();
+    }
+    ```
+
+
+### 등록일, 수정일 같은 날짜 타입 관련
+
+1. Date 타입을 쓰면 JPA관련 설정을 따로 해줘야하는데 자바8부터는 LocalDate를 사용하면 Hibernate가 알아서 설정해주기 때문에 다른 설정은 안해줘도 된다.
+
+    ```java
+    class Member {
+    
+    	// 다른 설정 필요없음
+    	private LocalDateTime date;
+    }
+    ```
+
+
+### Enum 타입을 설정할 때
+
+- Enum 타입을 설정하려고 한다면 만약 Enum 타입이 String일 경우 따로 설정을 추가해야한다.
+
+    ```java
+    // Delivery.java
+    
+    ......
+    
+    @Enumerated(EnumType.STRING) // 설정을 안하면 숫자로 들어가서 꼬임
+    private DeliveryStatus status
+    ```
+
+
+### 일대일 매핑 시 연관관계 주인
+
+- 일대일 매핑일때는 어디에 연관관계를 두어도 상관없지만 엑세스가 많이 되는 곳에 두어라
+  ex) 주문 - 배송 일때 보통 주문정보를 조회하고 배송정보를 조회하니까 주문 entity를 주인으로 두어라
+
+### 엔티티 설계 시 주의사항
+
+1. 엔티티는 가급적 setter를 사용하지말고 전용 메서드를 이용해서 셋팅하자
+2. 모든 연관관계는 **지연로딩**으로 사용해야한다!
+    - 설정을 즉시로딩(EAGER)로 하지말고 지연로딩(LAZY)로 바꿔라
+    - 연관된 엔티티를 같이 조회해야한다면 LAZY상태에서 패치조인 or 객체 그래프 기능을 사용하자
+    - xToOne은 기본 로딩이 EAGER이기 때문에 반드시 바꿔줘야한다.
+3. caseCade 전략 설정 : 엔티티안에 있는 타입이 엔티티인 필드의 값이 변경될 때 부모 엔티티를 save한다면 같이 insert되는 설정
+4. 양방향 매핑관계일 때 연관관계 편의 메서드를 만들자
+    - 엔티티의 필드에 값을 넣을 때 해당 엔티티와 연관되어있는 엔티티에도 같이 값을 넣어주는 편의 메서드
+    - 편의 메서드는 핵심적으로 컨트롤하고 있는 엔티티에 넣자
