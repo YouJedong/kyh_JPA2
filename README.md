@@ -230,3 +230,34 @@ public class MemberRepository {
 4. 양방향 매핑관계일 때 연관관계 편의 메서드를 만들자
     - 엔티티의 필드에 값을 넣을 때 해당 엔티티와 연관되어있는 엔티티에도 같이 값을 넣어주는 편의 메서드
     - 편의 메서드는 핵심적으로 컨트롤하고 있는 엔티티에 넣자
+
+### JPA Service단에서 알아야할 것
+
+1. 서비스 class에 Transaction을 걸어야한다.
+    - 보통 service단에 조회하는 메서드가 많으니까 class에 @Transaction(readOnly = true)를 걸고 update/insert가 일어나는 메서드에 @Transaction을 걸자
+
+        ```java
+        @Transactional(readOnly = true)
+        class MemberService() {
+        
+        		@Transactional
+        		public Long join(Member member) {
+        				....
+        		}
+        
+        }
+        ```
+
+2. repository를 생성할 때 @Autowired보다는 @RequiredArgsConstructor를 사용해서 생성해놓자
+
+    ```java
+    @Service
+    @Transactional(readOnly = true)
+    @RequiredArgsConstructor // 이렇게 셋팅을 해두면 final로 되어있는 필드를 자동으로 의존성 주입해준다.
+    public class MemberService {
+    
+        private final MemberRepository memberRepository;
+        
+        ....
+    }
+    ```
