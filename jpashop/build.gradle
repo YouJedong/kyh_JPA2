@@ -28,11 +28,14 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-devtools'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
     testImplementation 'junit:junit:4.13.1'
 
 	implementation 'p6spy:p6spy:3.9.1'
 	implementation 'com.github.gavlyukovskiy:datasource-decorator-spring-boot-autoconfigure:1.9.0'
 
+	//implementation 'jakarta.validation:jakarta.validation-api:2.0.2'
+	//implementation 'javax.validation:validation-api:2.0.1.Final'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
