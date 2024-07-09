@@ -261,3 +261,34 @@ public class MemberRepository {
         ....
     }
     ```
+### 변경감지와 병합
+
+- 엔티티를 새로만들면 영속상태가 아닌 **준영속상태**로 존재한다. 따라서 엔티티에 setter를 사용해도 변경감지(dirty checking)가 일어나지 않는다.
+
+    ```java
+    Member member = new Member(); // 준영속상태
+    // update가 날라가지 않음
+    member.setId(1);
+    member.setName("user1"); 
+    ```
+
+- 따라서 병합(merge)이나 변경감지가 될 수 있게 영속상태로 만들어야한다.
+
+    ```java
+    Member member = new Member(); // 준영속상태
+    member.setId(1);
+    member.setName("user1"); 
+    
+    // 1. 병합 방법
+    //EntityManager em;
+    em.merge(member);
+    -----------------------
+    // 2. 영속상태로 만들어서 변경감지
+    Member findMember = memberRepository.findOne(1); // db에서 조회
+    findMember.setName("user1"); // 변경감지로 인해 update문이 날라감
+    ```
+
+- 하지만 병합을 사용하면 해당 엔티티에 null인 필드도 모두 update되기 때문에 매우 위험하다.
+
+> **따라서 merge를 사용하지 말고 변경감지 방법을 사용하라!**
+>
