@@ -31,4 +31,9 @@ public class OrderRepository {
                 .setMaxResults(1000)
                 .getResultList();
     }
+
+    public List<Order> findAll2() {
+        return em.createQuery("select o from Order o", Order.class)
+                .getResultList();
+    }
 }
