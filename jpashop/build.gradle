@@ -34,6 +34,10 @@ dependencies {
 	implementation 'p6spy:p6spy:3.9.1'
 	implementation 'com.github.gavlyukovskiy:datasource-decorator-spring-boot-autoconfigure:1.9.0'
 
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-hibernate5
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.17.2'
+
+
 	//implementation 'jakarta.validation:jakarta.validation-api:2.0.2'
 	//implementation 'javax.validation:validation-api:2.0.1.Final'
 
