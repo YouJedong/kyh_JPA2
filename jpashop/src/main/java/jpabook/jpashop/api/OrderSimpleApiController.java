@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,12 +39,23 @@ public class OrderSimpleApiController {
             simpleOrderDto.setOrderId(order.getId());
             simpleOrderDto.setName(order.getMember().getName());
             simpleOrderDto.setOrderDate(order.getOrderDate());
-            simpleOrderDto.setAddress(order.getMember().getAddress());
+            simpleOrderDto.setAddress(order.getDelivery().getAddress());
             simpleOrderList.add(simpleOrderDto);
         }
 
         return simpleOrderList;
 
+    }
+
+    @GetMapping("/api/v3/simple-orders")
+    public List<SimpleOrderDto> orderV3() {
+        List<Order> orders = orderRepository.findAllWithMemberDelivery();
+        List<SimpleOrderDto> resultList =
+                orders.stream()
+                .map(o -> new SimpleOrderDto(o))
+                .collect(Collectors.toList());
+
+        return  resultList;
     }
 
     @Data
@@ -54,5 +66,16 @@ public class OrderSimpleApiController {
         private LocalDateTime orderDate;
         private OrderStatus orderStatus;
         private Address address;
+
+        public SimpleOrderDto() {
+        }
+
+        public SimpleOrderDto(Order order) {
+            this.orderId = order.getId();
+            this.name = order.getMember().getName();
+            this.orderDate = order.getOrderDate();
+            this.orderStatus = order.getStatus();
+            this.address = order.getMember().getAddress();
+        }
     }
 }
