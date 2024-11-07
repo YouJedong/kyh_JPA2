@@ -9,6 +9,8 @@ import jpabook.jpashop.repository.order.query.OrderFlatDto;
 import jpabook.jpashop.repository.order.query.OrderQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryRepository;
 import jpabook.jpashop.repository.order.simplequery.OrderSimpleQueryDto;
+import jpabook.jpashop.service.query.OrderDto;
+import jpabook.jpashop.service.query.OrderQueryService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
@@ -48,51 +50,17 @@ public class OrderApiController {
                 .collect(Collectors.toList());
     }
 
+    private final OrderQueryService orderQueryService;
+
     @GetMapping("/api/v3/orders")
     public List<OrderDto> ordersV3() {
-        List<Order> orders = orderRepository.findAllWithItem();
-        return orders.stream().map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
+        return orderQueryService.findOrdersV3();
 
     }
 
-    @Getter
-    static class OrderDto {
 
-        private Long orderId;
-        private String name;
 
-        private LocalDateTime orderDate;
-        private OrderStatus orderStatus;
-        private Address address;
-        private List<OrderItemDto> orderItems;
 
-        public OrderDto(Order o) {
-            orderId = o.getId();
-            name = o.getMember().getName();
-            orderDate = o.getOrderDate();
-            orderStatus = o.getStatus();
-            address = o.getDelivery().getAddress();
-            orderItems = o.getOrderItems().stream()
-                    .map(orderItem -> new OrderItemDto(orderItem))
-                    .collect(Collectors.toList());
-
-        }
-    }
-
-    @Getter
-    static class OrderItemDto {
-
-        private String itemName;
-        private int orderPrice;
-        private int count;
-
-        public OrderItemDto(OrderItem orderItem) {
-            itemName = orderItem.getItem().getName();
-            orderPrice = orderItem.getOrderPrice();
-            count = orderItem.getCount();
-        }
-    }
 
     @GetMapping("/api/v3.1/orders")
     public List<OrderDto> ordersV3_page(

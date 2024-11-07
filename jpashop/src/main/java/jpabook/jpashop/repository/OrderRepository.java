@@ -1,10 +1,14 @@
 package jpabook.jpashop.repository;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jpabook.jpashop.domain.Order;
 import jpabook.jpashop.domain.OrderSearch;
+import jpabook.jpashop.domain.QMember;
+import jpabook.jpashop.domain.QOrder;
 import jpabook.jpashop.repository.order.simplequery.OrderSimpleQueryDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.query.JpaQueryMethodFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,6 +33,20 @@ public class OrderRepository {
     }
 
     public List<Order> findAll(OrderSearch orderSearch) {
+        QOrder order = QOrder.order;
+        QMember member = QMember.member;
+
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        return query
+                .select(order)
+                .from(order)
+                .join(order.member, member)
+                .limit(100)
+                .fetch();
+
+    }
+
+    public List<Order> findAllBackup(OrderSearch orderSearch) {
         return em.createQuery("select o from Order o join o.member m " +
                         "where o.status = :status " +
                         "and m.name like :name", Order.class)
